@@ -1,0 +1,12 @@
+Package: macroeditor
+Version: @VERSION@
+Section: editors
+Priority: optional
+Architecture: all
+Maintainer: nouhailler <nouhailler@users.noreply.github.com>
+Depends: python3 (>= 3.11), python3-gi, gir1.2-gtk-4.0, gir1.2-gtksource-5
+Homepage: https://github.com/nouhailler/MacroEditor
+Description: GTK4 text editor with semantic macro recording
+ MacroEditor is a lightweight Linux text editor written in Python with GTK4.
+ It provides semantic macro recording, replay, JSON macro storage, and
+ search/replace tools in a minimal desktop application.

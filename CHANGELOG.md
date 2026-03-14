@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog, and this project uses semantic-style version tags.
 
+## [v0.2.0] - 2026-03-14
+
+### Added
+
+- Debian package structure for distributing MacroEditor as a `.deb`.
+- Package metadata in `debian/control`.
+- Post-installation script for desktop database and icon cache refresh.
+- Desktop menu entry for launching MacroEditor from Linux application menus.
+- Application launcher installed as `macroeditor`.
+- SVG application icon for desktop integration.
+- `INSTALL.md` with simplified installation and build instructions.
+- Build script to produce `dist/macroeditor_0.2.0_all.deb`.
+
 ## [v0.1.0] - 2026-03-14
 
 ### Added

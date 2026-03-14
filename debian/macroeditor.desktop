@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MacroEditor
+Comment=Minimal GTK4 text editor with semantic macro recording
+Exec=macroeditor
+Icon=macroeditor
+Terminal=false
+Categories=Utility;TextEditor;GTK;
+Keywords=text;editor;macro;gtk;
+StartupNotify=true
