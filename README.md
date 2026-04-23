@@ -8,6 +8,29 @@ Le dépôt contient aujourd'hui deux applications :
 
 L'objectif du projet est de permettre l'édition de texte, l'enregistrement de macros métier, leur persistance JSON et leur relecture avec un comportement prévisible.
 
+## Démo Visuelle
+
+![Démo MacroEditor](docs/media/macroeditor-demo.gif)
+
+Pour rendre la page GitHub plus parlante, le README gagne à embarquer une démo courte montrant :
+
+- l'enregistrement d'une macro
+- sa relecture sur plusieurs lignes
+- le mode colonne
+- la recherche avec assistant regex
+
+Format recommandé :
+
+- GIF court de 10 à 20 secondes pour le README
+- vidéo MP4 un peu plus longue en asset de release pour une démo plus nette
+
+Convention simple à utiliser dans le dépôt :
+
+- `docs/media/macroeditor-demo.gif`
+- `docs/media/macroeditor-demo.mp4`
+
+Une fois le GIF créé, il peut être référencé directement ici dans le README avec une balise Markdown standard.
+
 ## Fonctionnalités
 
 ### Éditeur
@@ -132,18 +155,32 @@ Ces répertoires servent aux données runtime et ne sont pas destinés à être 
 ## Packaging Debian
 
 Le dépôt contient une structure Debian pour produire un paquet `.deb` de l'application desktop GTK.
+Le paquet installe aussi un lanceur GNOME avec icône dans `/usr/share/applications/` et `/usr/share/icons/hicolor/`.
 
 ### Génération du paquet
 
 ```bash
-./debian/build.sh 0.3.0
+./debian/build.sh 0.3.1
 ```
 
 Le fichier généré est :
 
 ```text
-dist/macroeditor_0.3.0_all.deb
+dist/macroeditor_0.3.1_all.deb
 ```
+
+### Intégration GNOME
+
+Le paquet Debian installe :
+
+- le lanceur `io.github.nouhailler.macroeditor.desktop`
+- l'icône `macroeditor.svg`
+- le binaire `macroeditor`
+
+Le `postinst` rafraîchit automatiquement :
+
+- la base des fichiers desktop
+- le cache des icônes GTK
 
 ## Raccourcis principaux
 
@@ -158,8 +195,15 @@ dist/macroeditor_0.3.0_all.deb
 
 ## Release
 
-Le tag recommandé pour cet état du projet est `v0.3.0`.
-Il couvre la base GTK existante, l'ajout de la version web React/Express et les améliorations du moteur de macros et du mode colonne.
+Le tag recommandé pour cet état du projet est `v0.3.1`.
+Il couvre la base GTK existante, l'ajout de la version web React/Express, l'intégration GNOME améliorée et la démo visuelle embarquée.
+
+Pour une release plus convaincante, les assets recommandés sont :
+
+- le paquet `.deb`
+- un GIF court pour l'aperçu GitHub
+- éventuellement une vidéo MP4 de démonstration
+- un changelog synthétique des nouveautés
 
 ## Licence
 

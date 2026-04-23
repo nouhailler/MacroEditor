@@ -17,7 +17,7 @@ class MacroEditorApplication(Gtk.Application):
 
     def __init__(self) -> None:
         super().__init__(
-            application_id="org.example.macroeditor",
+            application_id="io.github.nouhailler.macroeditor",
             flags=Gio.ApplicationFlags.HANDLES_OPEN,
         )
         self.storage = MacroStorage()

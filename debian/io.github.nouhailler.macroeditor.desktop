@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MacroEditor
+GenericName=Text Editor
+Comment=Minimal GTK4 text editor with semantic macro recording
+Exec=macroeditor %F
+Icon=macroeditor
+Terminal=false
+Categories=TextEditor;Utility;GTK;
+Keywords=text;editor;macro;gtk;regex;
+MimeType=text/plain;
+StartupNotify=true
+StartupWMClass=io.github.nouhailler.macroeditor

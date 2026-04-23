@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog, and this project uses semantic-style version tags.
 
+## [v0.3.1] - 2026-04-23
+
+### Added
+
+- Animated demo GIF generated from the live React application and embedded in the README.
+- GNOME-friendly desktop launcher file named `io.github.nouhailler.macroeditor.desktop`.
+
+### Changed
+
+- GTK application id aligned with the desktop launcher for cleaner GNOME integration.
+- Debian packaging updated to install the renamed desktop entry.
+
 ## [v0.3.0] - 2026-04-23
 
 ### Added
