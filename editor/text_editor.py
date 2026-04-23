@@ -8,8 +8,9 @@ from utils.gtk import require_gtk_versions
 
 require_gtk_versions()
 
-from gi.repository import Gdk, Gtk, GtkSource
+from gi.repository import Gdk, GObject, Gtk, GtkSource
 
+from editor.column_selection import ColumnSelectionManager
 from editor.command_system import CopyCommand, CutCommand, PasteCommand
 from utils.encoding import read_text_file, write_text_file
 
@@ -29,6 +30,9 @@ class TextEditor(Gtk.Box):
         self.file_path = None
         self.encoding = "UTF-8"
         self.last_search = ""
+        self._column_drag_active = False
+        self._column_drag_origin = (0, 0)
+        self.column_mode_enabled = False
 
         self.buffer = GtkSource.Buffer()
         self.buffer.set_highlight_syntax(False)
@@ -36,6 +40,7 @@ class TextEditor(Gtk.Box):
         self.buffer.connect("insert-text", self._on_insert_text)
         self.buffer.connect("delete-range", self._on_delete_range)
         self.buffer.connect("notify::cursor-position", self._on_cursor_position_changed)
+        self.column_selection = ColumnSelectionManager(self.buffer)
 
         self.view = GtkSource.View.new_with_buffer(self.buffer)
         self.view.set_show_line_numbers(True)
@@ -45,6 +50,7 @@ class TextEditor(Gtk.Box):
         self.view.set_hexpand(True)
         self.view.set_vexpand(True)
         self.view.connect("move-cursor", self._on_move_cursor)
+        self._install_input_controllers()
 
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_hexpand(True)
@@ -115,12 +121,25 @@ class TextEditor(Gtk.Box):
 
     def copy_clipboard(self) -> None:
         """Copy selection to the clipboard."""
+        if self.column_selection.has_selection():
+            self._set_clipboard_text(self.column_selection.get_selected_text())
+            self.recorder.record(CopyCommand())
+            return
         clipboard = self._clipboard()
         self.buffer.copy_clipboard(clipboard)
         self.recorder.record(CopyCommand())
 
     def cut_clipboard(self) -> None:
         """Cut selection to the clipboard and record it semantically."""
+        if self.column_selection.has_selection():
+            self._set_clipboard_text(self.column_selection.get_selected_text())
+            with self.recorder.suspend():
+                self.buffer.begin_user_action()
+                self.column_selection.delete_selected_text()
+                self.buffer.end_user_action()
+            self.recorder.record(CutCommand())
+            self._notify_status()
+            return
         clipboard = self._clipboard()
         with self.recorder.suspend():
             self.buffer.cut_clipboard(clipboard, True)
@@ -128,6 +147,8 @@ class TextEditor(Gtk.Box):
 
     def paste_clipboard(self) -> None:
         """Paste clipboard contents and record it semantically."""
+        if self.column_selection.has_selection():
+            self.column_selection.clear()
         clipboard = self._clipboard()
         with self.recorder.suspend():
             self.buffer.paste_clipboard(clipboard, None, True)
@@ -198,11 +219,87 @@ class TextEditor(Gtk.Box):
         display = Gdk.Display.get_default()
         return display.get_clipboard()
 
+    def _set_clipboard_text(self, text: str) -> None:
+        value = GObject.Value()
+        value.init(str)
+        value.set_string(text)
+        self._clipboard().set(value)
+
+    def _install_input_controllers(self) -> None:
+        click = Gtk.GestureClick()
+        click.set_button(Gdk.BUTTON_PRIMARY)
+        click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        click.connect("pressed", self._on_press)
+        click.connect("released", self._on_release)
+        self.view.add_controller(click)
+
+        motion = Gtk.EventControllerMotion()
+        motion.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        motion.connect("motion", self._on_motion)
+        self.view.add_controller(motion)
+
+    def _view_coords_to_iter(self, x: float, y: float):
+        buffer_x, buffer_y = self.view.window_to_buffer_coords(
+            Gtk.TextWindowType.WIDGET,
+            int(x),
+            int(y),
+        )
+        success, text_iter = self.view.get_iter_at_location(buffer_x, buffer_y)
+        if not success:
+            return self.buffer.get_end_iter()
+        return text_iter
+
+    def _on_press(self, gesture, _n_press: int, start_x: float, start_y: float) -> None:
+        if self.column_mode_enabled:
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+            self._column_drag_active = True
+            self._column_drag_origin = (start_x, start_y)
+            start_iter = self._view_coords_to_iter(start_x, start_y)
+            self.buffer.place_cursor(start_iter)
+            if self.buffer.get_has_selection():
+                self.buffer.select_range(start_iter, start_iter)
+            self.column_selection.update(
+                start_iter.get_line(),
+                start_iter.get_line_offset(),
+                start_iter.get_line(),
+                start_iter.get_line_offset(),
+            )
+        elif self.column_selection.has_selection():
+            self.column_selection.clear()
+
+    def _on_motion(self, _controller, x: float, y: float) -> None:
+        if not self._column_drag_active:
+            return
+        start_x, start_y = self._column_drag_origin
+        start_iter = self._view_coords_to_iter(start_x, start_y)
+        current_iter = self._view_coords_to_iter(x, y)
+        self.column_selection.update(
+            start_iter.get_line(),
+            start_iter.get_line_offset(),
+            current_iter.get_line(),
+            current_iter.get_line_offset(),
+        )
+        self.buffer.place_cursor(current_iter)
+        self._notify_status()
+
+    def _on_release(self, _gesture, _n_press: int, _x: float, _y: float) -> None:
+        self._column_drag_active = False
+
+    def set_column_mode_enabled(self, enabled: bool) -> None:
+        """Enable or disable rectangular selection mode."""
+        self.column_mode_enabled = enabled
+        if not enabled and self.column_selection.has_selection():
+            self.column_selection.clear()
+
     def _on_insert_text(self, _buffer, _iter, text, length) -> None:
+        if self.column_selection.has_selection() and not self._column_drag_active:
+            self.column_selection.clear()
         if length > 0:
             self.recorder.handle_insert_text(text[:length])
 
     def _on_delete_range(self, _buffer, start_iter, end_iter) -> None:
+        if self.column_selection.has_selection() and not self._column_drag_active:
+            self.column_selection.clear()
         deleted_text = self.buffer.get_text(start_iter, end_iter, True)
         if deleted_text:
             self.recorder.handle_delete(deleted_text)

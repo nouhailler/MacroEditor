@@ -1,159 +1,166 @@
 # MacroEditor
 
-Un editeur de texte graphique sous Linux ecrit en Python dont la fonctionnalite principale est l'enregistrement et la relecture de macros a la volee via l'interface graphique.
+MacroEditor est un éditeur de texte orienté macros sémantiques.
+Le dépôt contient aujourd'hui deux applications :
 
-## Apercu
+- une application desktop GTK4 en Python
+- une application web avec frontend React et backend Express
 
-`MacroEditor` combine un editeur texte simple avec un systeme de macros en direct :
+L'objectif du projet est de permettre l'édition de texte, l'enregistrement de macros métier, leur persistance JSON et leur relecture avec un comportement prévisible.
 
-- 📝 edition de texte classique
-- ⏺️ enregistrement de macros semantiques
-- ▶️ lecture de macros sans bloquer l'interface
-- 💾 sauvegarde des macros en JSON
-- 🔎 recherche et remplacement
-- 🔁 remplacement global avec compteur d'occurrences
+## Fonctionnalités
 
-## Fonctionnalites
+### Éditeur
 
-### Editeur
+- nouveau document, ouverture, sauvegarde et suppression
+- copier, couper, coller, undo, redo
+- numéros de ligne
+- barre d'état avec ligne, colonne, état d'enregistrement et état du document
+- import/export de fichiers locaux dans la version web
 
-- 📄 Nouveau fichier
-- 📂 Ouvrir un fichier
-- 💾 Enregistrer / Enregistrer sous
-- ✂️ Copier / Couper / Coller
-- ↩️ Undo / Redo
-- 🔎 Recherche avec `Ctrl+F`
-- ♻️ Remplacement avec `Ctrl+H`
-- 🔢 Numeros de ligne via `GtkSourceView`
-- 🔤 Encodage UTF-8
+### Mode colonne
+
+- activation/désactivation dédiée
+- sélection rectangulaire à la souris
+- extension verticale au clavier
+- copier/couper/coller sur bloc
+- restauration complète via undo/redo
 
 ### Macros
 
-- ⏺️ Demarrer un enregistrement
-- ⏹️ Arreter l'enregistrement
-- ▶️ Rejouer une macro
-- 🔁 Rejouer une macro plusieurs fois
-- 🗂️ Charger automatiquement les macros au demarrage
-- 💾 Stocker les macros en JSON dans `~/.config/macroeditor/macros/`
+- enregistrement de macros sémantiques
+- mémorisation du texte saisi et des suppressions
+- mémorisation des déplacements du curseur
+- mémorisation des clics de repositionnement de curseur à la souris
+- lecture de macro avec répétitions
+- stockage JSON des macros
 
-## Philosophie
+### Recherche
 
-Les macros enregistrent des actions semantiques plutot que des keycodes clavier.
+- recherche standard
+- remplacement simple et global
+- assistant regex
+- mode regex manuel avancé avec flags
+- copie de la regex générée
 
-Exemple :
+### Interface web
 
-```json
-{
-  "name": "example_macro",
-  "actions": [
-    {"action": "insert_text", "text": "Hello"},
-    {"action": "newline"},
-    {"action": "insert_text", "text": "World"}
-  ]
-}
-```
+- thème sombre ou clair
+- aide intégrée décrivant les principales possibilités de MacroEditor
+- backend pour les documents et les macros
 
-## Structure Du Projet
+## Structure
 
 ```text
 macroeditor/
-├── main.py
 ├── app.py
-├── ui/
-│   ├── main_window.py
-│   ├── toolbar.py
-│   └── statusbar.py
+├── main.py
 ├── editor/
-│   ├── text_editor.py
-│   ├── command_system.py
-│   └── macro_recorder.py
 ├── macros/
-│   ├── macro.py
-│   ├── macro_player.py
-│   └── macro_storage.py
-└── utils/
-    ├── encoding.py
-    └── gtk.py
+├── ui/
+├── utils/
+├── debian/
+├── server/
+└── web/
 ```
 
-## Prerequis
+## Version Desktop GTK
 
-- 🐍 Python 3.11+
-- 🧩 PyGObject
-- 🧱 GTK 4
-- ✨ GtkSourceView 5
-- 🐧 Linux
+### Pré-requis
 
-## Installation
+- Python 3.11+
+- PyGObject
+- GTK 4
+- GtkSourceView 5
+- Linux
 
-### Debian 13+
+### Installation des dépendances
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y python3-gi gir1.2-gtk-4.0 gir1.2-gtksource-5
 ```
 
-### Verification
-
-```bash
-python3 -c "import gi; gi.require_version('Gtk', '4.0'); gi.require_version('GtkSource', '5'); from gi.repository import Gtk, GtkSource; print('OK')"
-```
-
-## Lancement
-
-Depuis la racine du projet :
+### Lancement
 
 ```bash
 python3 main.py
 ```
 
-## Utilisation Rapide
+## Version Web React + Backend
 
-### Enregistrer une macro
+### Pré-requis
 
-1. Lance l'application.
-2. Ouvre ou cree un document.
-3. Va dans `Macros > Start Recording`.
-4. Effectue les actions a enregistrer.
-5. Va dans `Macros > Stop Recording`.
-6. Donne un nom a la macro.
+- Node.js 20+
+- npm 10+
 
-### Rejouer une macro
+### Installation
 
-1. Va dans `Macros > Play Macro`.
-2. Saisis le nom de la macro.
-3. Choisis un nombre de repetitions.
-
-### Rechercher et remplacer
-
-- `Ctrl+F` : rechercher le texte suivant
-- `Ctrl+H` : remplacer l'occurrence suivante ou toutes les occurrences
-
-## Undo / Redo
-
-L'execution complete d'une macro est groupee en une seule action `Undo` grace a `begin_user_action()` / `end_user_action()`.
-
-## Stockage Des Macros
-
-Les macros sont sauvegardees ici :
-
-```text
-~/.config/macroeditor/macros/
+```bash
+npm install
 ```
 
-## Etat Du Projet
+### Développement
 
-Version actuelle : MVP fonctionnel.
+Lancer le backend :
 
-Points deja presents :
+```bash
+npm run start:server
+```
 
-- interface GTK4
-- editeur base sur `GtkSourceView`
-- systeme de commandes
-- enregistrement et lecture de macros
-- persistance JSON
-- recherche et remplacement global
+Lancer le frontend dans un second terminal :
+
+```bash
+npm run dev:web
+```
+
+Ouvrir ensuite `http://localhost:5173`.
+
+### Build frontend
+
+```bash
+npm run build:web
+```
+
+## Données de la version web
+
+- les documents sont stockés dans `server/data/documents/`
+- les macros sont stockées dans `server/data/macros/`
+
+Ces répertoires servent aux données runtime et ne sont pas destinés à être versionnés, hors fichiers `.gitkeep`.
+
+## Packaging Debian
+
+Le dépôt contient une structure Debian pour produire un paquet `.deb` de l'application desktop GTK.
+
+### Génération du paquet
+
+```bash
+./debian/build.sh 0.3.0
+```
+
+Le fichier généré est :
+
+```text
+dist/macroeditor_0.3.0_all.deb
+```
+
+## Raccourcis principaux
+
+- `Ctrl/Cmd + S` : enregistrer
+- `Ctrl/Cmd + Z` : undo
+- `Ctrl/Cmd + Y` : redo
+- `Ctrl/Cmd + F` : rechercher
+- `Ctrl/Cmd + H` : remplacer
+- `Ctrl/Cmd + Shift + R` : démarrer/arrêter l'enregistrement de macro
+- `Ctrl/Cmd + Shift + P` : jouer la macro
+- `Ctrl/Cmd + Alt + C` : activer/désactiver le mode colonne
+
+## Release
+
+Le tag recommandé pour cet état du projet est `v0.3.0`.
+Il couvre la base GTK existante, l'ajout de la version web React/Express et les améliorations du moteur de macros et du mode colonne.
 
 ## Licence
 
-Projet open source. Ajoute la licence de ton choix avant publication, par exemple `MIT`.
+MIT.

@@ -127,6 +127,7 @@ class MainWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "find": self._action_find,
             "replace": self._action_replace,
+            "toggle_column_mode": self._action_toggle_column_mode,
             "start_recording": self._action_start_recording,
             "stop_recording": self._action_stop_recording,
             "play_macro": self._action_play_macro,
@@ -165,6 +166,7 @@ class MainWindow(Gtk.ApplicationWindow):
         edit_menu.append("Paste", "app.paste")
         edit_menu.append("Find", "app.find")
         edit_menu.append("Replace", "app.replace")
+        edit_menu.append("Toggle Column Selection Mode", "app.toggle_column_mode")
 
         self.macros_menu = Gio.Menu()
         self.macros_menu.append("Start Recording", "app.start_recording")
@@ -206,6 +208,8 @@ class MainWindow(Gtk.ApplicationWindow):
         state = "Recording" if self.recorder.is_recording else "Idle"
         if self.player is not None and self.player.is_running:
             state = "Playing"
+        if hasattr(self, "editor") and self.editor.column_mode_enabled:
+            state = f"{state} | Column Mode"
         if hasattr(self, "editor"):
             self.current_encoding = self.editor.encoding
         self.statusbar.update_status(line, column, self.current_encoding, state)
@@ -291,6 +295,11 @@ class MainWindow(Gtk.ApplicationWindow):
         dialog.add_extra_button("Replace All", Gtk.ResponseType.APPLY)
         dialog.connect("response", self._on_replace_response)
         dialog.present()
+
+    def _action_toggle_column_mode(self, *_args) -> None:
+        enabled = not self.editor.column_mode_enabled
+        self.editor.set_column_mode_enabled(enabled)
+        self._refresh_status()
 
     def _on_replace_response(self, dialog, response) -> None:
         if response == Gtk.ResponseType.OK:

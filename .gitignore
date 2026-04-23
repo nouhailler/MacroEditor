@@ -11,3 +11,13 @@ dist/
 *.egg-info/
 .DS_Store
 error.log
+node_modules/
+web/dist/
+.codex
+.codex/
+server/data/documents/*
+server/data/macros/*
+!server/data/documents/.gitkeep
+!server/data/macros/.gitkeep
+*.buildinfo
+*.changes

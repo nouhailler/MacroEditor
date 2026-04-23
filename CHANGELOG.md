@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog, and this project uses semantic-style version tags.
 
+## [v0.3.0] - 2026-04-23
+
+### Added
+
+- React frontend with document management, toolbar, status bar, import/export, and integrated help dialog.
+- Express backend for document and macro persistence.
+- Column mode with rectangular selection, keyboard extension, clipboard support, and history restoration.
+- Semantic macro improvements for vertical cursor movement and mouse-based cursor repositioning.
+- Assisted regex mode, manual regex mode, and regex copy helper.
+- Theme switcher with dark and light appearance modes.
+- Updated project documentation for GTK desktop and React/Express web variants.
+
 ## [v0.2.0] - 2026-03-14
 
 ### Added

@@ -21,6 +21,7 @@ class Toolbar(Gtk.Box):
             ("document-new-symbolic", "New", on_action, "new"),
             ("document-open-symbolic", "Open", on_action, "open"),
             ("document-save-symbolic", "Save", on_action, "save"),
+            ("select-rectangular-symbolic", "Column Selection", on_action, "toggle_column_mode"),
             ("media-record-symbolic", "Record", on_action, "start_recording"),
             ("media-playback-stop-symbolic", "Stop", on_action, "stop_recording"),
             ("media-playback-start-symbolic", "Play", on_action, "play_macro"),
