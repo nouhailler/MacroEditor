@@ -12,6 +12,8 @@ dist/
 .DS_Store
 error.log
 node_modules/
+packaging/windows/node_modules/
+packaging/windows/runtime/
 web/dist/
 .codex
 .codex/
