@@ -9,6 +9,9 @@
     "dev:server": "npm run dev --workspace server",
     "dev:web": "npm run dev --workspace web",
     "start:server": "npm run start --workspace server",
-    "build:web": "npm run build --workspace web"
+    "build:web": "npm run build --workspace web",
+    "prepare:windows-runtime": "npm run build:web && node packaging/windows/scripts/prepare-runtime.mjs",
+    "package:windows": "npm run prepare:windows-runtime && npm run build --prefix packaging/windows",
+    "package:debian": "./packaging/debian/build.sh"
   }
 }

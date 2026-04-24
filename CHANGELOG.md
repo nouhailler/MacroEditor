@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog, and this project uses semantic-style version tags.
 
+## [Unreleased]
+
+### Added
+
+- Windows packaging scaffold based on the React and Express application, isolated in `packaging/windows/`.
+- GitHub Actions workflow building Windows and Debian release assets and publishing them on version tags.
+
+### Changed
+
+- Packaging layout split into `packaging/debian/` and `packaging/windows/`.
+- Web server refactored so it can run either standalone or embedded inside a desktop wrapper.
+- Web data storage can now be redirected with `MACROEDITOR_DATA_DIR`, which is required for desktop packaging.
+- Windows package version can now be synchronized from the release tag during CI builds.
+
 ## [v0.3.1] - 2026-04-23
 
 ### Added
@@ -33,7 +47,7 @@ The format is inspired by Keep a Changelog, and this project uses semantic-style
 ### Added
 
 - Debian package structure for distributing MacroEditor as a `.deb`.
-- Package metadata in `debian/control`.
+- Package metadata in `packaging/debian/control`.
 - Post-installation script for desktop database and icon cache refresh.
 - Desktop menu entry for launching MacroEditor from Linux application menus.
 - Application launcher installed as `macroeditor`.

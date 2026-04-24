@@ -1,0 +1,134 @@
+name: Release Assets
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Optional Windows package version override for manual builds"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Resolve package version
+        id: version
+        shell: bash
+        run: |
+          VERSION_INPUT="${{ github.event.inputs.version }}"
+
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [ -n "${VERSION_INPUT}" ]; then
+            VERSION="${VERSION_INPUT#v}"
+          else
+            VERSION="$(node -p "require('./packaging/windows/package.json').version")"
+          fi
+
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+  build-windows:
+    needs: resolve-version
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/windows/package-lock.json
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Install Windows packaging dependencies
+        run: npm ci --prefix packaging/windows
+
+      - name: Sync Windows package version
+        run: node packaging/windows/scripts/set-version.mjs ${{ needs.resolve-version.outputs.version }}
+
+      - name: Build Windows packages
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: npm run package:windows
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macroeditor-windows-${{ needs.resolve-version.outputs.version }}
+          if-no-files-found: error
+          path: |
+            dist/windows/*.exe
+            dist/windows/latest*.yml
+            dist/windows/*.blockmap
+
+  build-debian:
+    needs: resolve-version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Build Debian package
+        run: npm run package:debian -- ${{ needs.resolve-version.outputs.version }}
+
+      - name: Upload Debian artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macroeditor-debian-${{ needs.resolve-version.outputs.version }}
+          if-no-files-found: error
+          path: dist/*.deb
+
+  publish-release:
+    if: github.ref_type == 'tag'
+    needs:
+      - resolve-version
+      - build-windows
+      - build-debian
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: macroeditor-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Publish GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release-assets/*

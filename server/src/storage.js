@@ -4,7 +4,9 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dataDirectory = path.resolve(__dirname, "..", "data");
+const dataDirectory = path.resolve(
+  process.env.MACROEDITOR_DATA_DIR || path.resolve(__dirname, "..", "data"),
+);
 const documentsDirectory = path.join(dataDirectory, "documents");
 const macrosDirectory = path.join(dataDirectory, "macros");
 

@@ -5,6 +5,7 @@ Le dépôt contient aujourd'hui deux applications :
 
 - une application desktop GTK4 en Python
 - une application web avec frontend React et backend Express
+- un packaging Windows basé sur la version web embarquée
 
 L'objectif du projet est de permettre l'édition de texte, l'enregistrement de macros métier, leur persistance JSON et leur relecture avec un comportement prévisible.
 
@@ -80,9 +81,11 @@ macroeditor/
 ├── main.py
 ├── editor/
 ├── macros/
+├── packaging/
+│   ├── debian/
+│   └── windows/
 ├── ui/
 ├── utils/
-├── debian/
 ├── server/
 └── web/
 ```
@@ -152,15 +155,23 @@ npm run build:web
 
 Ces répertoires servent aux données runtime et ne sont pas destinés à être versionnés, hors fichiers `.gitkeep`.
 
-## Packaging Debian
+## Packaging
+
+Le dépôt sépare maintenant explicitement les cibles de packaging :
+
+- `packaging/debian/` pour l'application GTK Linux
+- `packaging/windows/` pour l'application Windows basée sur la version web
+
+### Debian
 
 Le dépôt contient une structure Debian pour produire un paquet `.deb` de l'application desktop GTK.
 Le paquet installe aussi un lanceur GNOME avec icône dans `/usr/share/applications/` et `/usr/share/icons/hicolor/`.
+Le build de release Debian est aussi automatisé dans GitHub Actions et publié sur la même GitHub Release que les artefacts Windows.
 
 ### Génération du paquet
 
 ```bash
-./debian/build.sh 0.3.1
+npm run package:debian -- 0.3.1
 ```
 
 Le fichier généré est :
@@ -181,6 +192,43 @@ Le `postinst` rafraîchit automatiquement :
 
 - la base des fichiers desktop
 - le cache des icônes GTK
+
+### Windows
+
+Le packaging Windows s'appuie sur la version web compilée et l'embarque dans un wrapper Electron.
+L'application Windows démarre le serveur Express localement, sert le frontend React compilé et stocke ses données dans le profil utilisateur Windows.
+
+Installation des dépendances Windows de packaging :
+
+```bash
+npm install --prefix packaging/windows
+```
+
+Préparation du runtime embarqué :
+
+```bash
+npm run prepare:windows-runtime
+```
+
+Build du paquet Windows :
+
+```bash
+npm run package:windows
+```
+
+Les artefacts sont générés dans :
+
+```text
+dist/windows/
+```
+
+Note pratique :
+
+- le build de release Windows est automatisé via GitHub Actions sur `windows-latest`
+- un tag Git `vX.Y.Z` déclenche la création des artefacts Windows et Debian puis leur publication sur la même GitHub Release
+- un lancement manuel du workflow permet aussi de produire des artefacts de validation sans publier de release
+- le dossier d'installation ne sert pas de stockage des documents et macros
+- les données runtime sont redirigées vers le répertoire utilisateur de l'application
 
 ## Raccourcis principaux
 

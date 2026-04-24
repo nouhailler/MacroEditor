@@ -1,0 +1,43 @@
+{
+  "name": "macroeditor-windows",
+  "version": "0.3.1",
+  "private": true,
+  "description": "MacroEditor Windows desktop package built from the embedded web runtime",
+  "author": "nouhailler",
+  "main": "src/main.cjs",
+  "scripts": {
+    "build": "electron-builder --win nsis portable"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "electron": "^35.1.5",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "io.github.nouhailler.macroeditor.web",
+    "productName": "MacroEditor",
+    "directories": {
+      "output": "../../dist/windows",
+      "buildResources": "assets"
+    },
+    "files": [
+      "package.json",
+      "src/**/*",
+      "runtime/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    }
+  }
+}
