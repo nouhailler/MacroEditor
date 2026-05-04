@@ -1,7 +1,16 @@
-# MacroEditor
+# 📋 MacroEditor
 
 MacroEditor est un éditeur de texte orienté macros sémantiques.
 Le dépôt contient aujourd'hui deux applications :
+
+## 📑 Table des matières
+- [Présentation](#-présentation)
+- [Fonctionnalités](#-fonctionnalités)
+- [Structure du projet](#-structure-du-projet)
+- [Installation Desktop (GTK)](#-installation-desktop-gtk)
+- [Installation Web (React + Express)](#-installation-web-react--express)
+- [Packaging](#-packaging)
+- [Licence](#-licence)
 
 - une application desktop GTK4 en Python
 - une application web avec frontend React et backend Express
@@ -9,7 +18,7 @@ Le dépôt contient aujourd'hui deux applications :
 
 L'objectif du projet est de permettre l'édition de texte, l'enregistrement de macros métier, leur persistance JSON et leur relecture avec un comportement prévisible.
 
-## Démo Visuelle
+## 🎥 Démo
 
 ![Démo MacroEditor](docs/media/macroeditor-demo.gif)
 
@@ -32,7 +41,7 @@ Convention simple à utiliser dans le dépôt :
 
 Une fois le GIF créé, il peut être référencé directement ici dans le README avec une balise Markdown standard.
 
-## Fonctionnalités
+## 🚀 Fonctionnalités
 
 ### Éditeur
 
